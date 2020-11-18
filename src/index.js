@@ -1,6 +1,8 @@
 const cors = require("cors");
 const express = require("express");
-const stripe = require("stripe")("STRIPE_SECRET_KEY");
+const dotenv = require("dotenv");
+dotenv.config();
+const stripe = require("stripe")(process.env.STRIPE_SECRET_KEY);
 const uuid = require("uuid/v4");
 
 const app = express();
@@ -22,7 +24,7 @@ app.post("/checkout", async (req, res) => {
 
     const customer = await stripe.customers.create({
       email: token.email,
-      source: token.id
+      source: token.id,
     });
 
     const idempotency_key = uuid();
@@ -40,12 +42,12 @@ app.post("/checkout", async (req, res) => {
             line2: token.card.address_line2,
             city: token.card.address_city,
             country: token.card.address_country,
-            postal_code: token.card.address_zip
-          }
-        }
+            postal_code: token.card.address_zip,
+          },
+        },
       },
       {
-        idempotency_key
+        idempotency_key,
       }
     );
     console.log("Charge:", { charge });
